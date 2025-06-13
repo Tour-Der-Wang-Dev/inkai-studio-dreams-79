@@ -1,13 +1,15 @@
 
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Slider } from '@/components/ui/slider'
 import { Progress } from '@/components/ui/progress'
+import { Badge } from '@/components/ui/badge'
 import { useCanvasStore } from '@/stores/canvas-store'
+import { useAIModelStore } from '@/stores/ai-model-store'
 import { 
   Sparkles, 
   Upload, 
@@ -16,7 +18,10 @@ import {
   Settings,
   Image as ImageIcon,
   Palette,
-  Zap
+  Zap,
+  Brain,
+  Clock,
+  Users
 } from 'lucide-react'
 
 const stylePresets = [
@@ -39,40 +44,70 @@ export const AIIntegrationPanel: React.FC = () => {
   const [batchCount, setBatchCount] = useState(1)
   
   const { aiGenerationStatus, setAiGenerationStatus } = useCanvasStore()
+  const {
+    availableModels,
+    selectedModel,
+    queueStatus,
+    activeGenerations,
+    loadModels,
+    selectModel,
+    startGeneration,
+    updateQueueStatus,
+    optimizePrompt
+  } = useAIModelStore()
+
+  useEffect(() => {
+    loadModels()
+    updateQueueStatus()
+  }, [loadModels, updateQueueStatus])
 
   const handleGenerate = async () => {
-    if (!prompt.trim()) return
+    if (!prompt.trim() || !selectedModel) return
     
     setAiGenerationStatus('generating')
     setGenerationProgress(0)
     
-    // Simulate AI generation progress
-    const progressInterval = setInterval(() => {
-      setGenerationProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(progressInterval)
-          setAiGenerationStatus('complete')
-          return 100
-        }
-        return prev + Math.random() * 10
-      })
-    }, 500)
-    
-    // TODO: Integrate with actual AI service
     try {
-      // Placeholder for AI generation logic
-      console.log('Generating with:', {
-        prompt,
+      const optimized = await optimizePrompt(prompt, selectedStyle)
+      
+      await startGeneration({
+        prompt: optimized,
         style: selectedStyle,
-        creativity,
-        detail,
-        colorIntensity,
-        batchCount
+        modelId: selectedModel.id,
+        parameters: {
+          creativity,
+          detail,
+          colorIntensity,
+          batchCount
+        },
+        referenceImage: referenceImage ? await fileToBase64(referenceImage) : undefined
       })
+      
+      // Simulate progress
+      const progressInterval = setInterval(() => {
+        setGenerationProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(progressInterval)
+            setAiGenerationStatus('complete')
+            return 100
+          }
+          return prev + Math.random() * 10
+        })
+      }, 500)
+      
     } catch (error) {
       setAiGenerationStatus('error')
-      clearInterval(progressInterval)
+      console.error('Generation failed:', error)
     }
+  }
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = () => resolve(reader.result as string)
+      reader.onerror = error => reject(error)
+    })
   }
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,6 +119,106 @@ export const AIIntegrationPanel: React.FC = () => {
 
   return (
     <div className="w-96 bg-gray-900 border-l border-gray-700 p-4 space-y-6 overflow-y-auto">
+      {/* Model Selection */}
+      <Card className="bg-gray-800 border-gray-700">
+        <CardHeader>
+          <CardTitle className="text-white text-sm flex items-center">
+            <Brain className="w-4 h-4 mr-2" />
+            AI Model
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <select
+            value={selectedModel?.id || ''}
+            onChange={(e) => {
+              const model = availableModels.find(m => m.id === e.target.value)
+              if (model) selectModel(model)
+            }}
+            className="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm"
+          >
+            <option value="">Select Model</option>
+            {availableModels.map((model) => (
+              <option key={model.id} value={model.id}>
+                {model.name} ({model.performance.successRate}% success)
+              </option>
+            ))}
+          </select>
+          
+          {selectedModel && (
+            <div className="mt-3 p-2 bg-gray-700 rounded text-xs">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-gray-400">Performance</span>
+                <span className="text-green-400">{selectedModel.performance.successRate}%</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Avg. Time</span>
+                <span className="text-white">{selectedModel.performance.averageProcessingTime}s</span>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Queue Status */}
+      {queueStatus && queueStatus.totalInQueue > 0 && (
+        <Card className="bg-gray-800 border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-white text-sm flex items-center">
+              <Clock className="w-4 h-4 mr-2" />
+              Queue Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-400">Position in queue:</span>
+                <span className="text-white">{queueStatus.position}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Estimated wait:</span>
+                <span className="text-white">{queueStatus.estimatedWaitTime}s</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-400">Total in queue:</span>
+                <span className="text-white">{queueStatus.totalInQueue}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Active Generations */}
+      {activeGenerations.length > 0 && (
+        <Card className="bg-gray-800 border-gray-700">
+          <CardHeader>
+            <CardTitle className="text-white text-sm flex items-center">
+              <Users className="w-4 h-4 mr-2" />
+              Active Generations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {activeGenerations.slice(0, 3).map((generation) => (
+                <div key={generation.id} className="p-2 bg-gray-700 rounded text-xs">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-white truncate">{generation.prompt.slice(0, 30)}...</span>
+                    <Badge 
+                      variant="outline" 
+                      className="border-blue-500 text-blue-400 text-xs"
+                    >
+                      {generation.status}
+                    </Badge>
+                  </div>
+                  <div className="text-gray-400">
+                    Started: {generation.createdAt.toLocaleTimeString()}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* AI Prompt */}
       <Card className="bg-gray-800 border-gray-700">
         <CardHeader>
@@ -105,7 +240,7 @@ export const AIIntegrationPanel: React.FC = () => {
           
           <Button
             onClick={handleGenerate}
-            disabled={!prompt.trim() || aiGenerationStatus === 'generating'}
+            disabled={!prompt.trim() || !selectedModel || aiGenerationStatus === 'generating'}
             className="w-full bg-gradient-to-r from-electric-blue to-neon-green hover:from-electric-blue/90 hover:to-neon-green/90"
           >
             {aiGenerationStatus === 'generating' ? (
