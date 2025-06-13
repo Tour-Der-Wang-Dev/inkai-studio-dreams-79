@@ -1,0 +1,636 @@
+# Enhanced Lovable.dev Prompts for InkAI Studio
+
+## Core Implementation Strategy for Lovable.dev
+
+### Phase 1: Foundation & Core Pages
+
+#### 1. Project Setup & Configuration
+```
+Create a Next.js 14 project with TypeScript for "InkAI Studio" - an AI-powered tattoo design platform. 
+
+TECHNICAL REQUIREMENTS:
+- Setup: Next.js 14, TypeScript, Tailwind CSS, Framer Motion
+- Database: Supabase with PostgreSQL
+- Authentication: Supabase Auth with social providers
+- File Storage: Supabase Storage for images
+- State Management: Zustand
+- UI Components: shadcn/ui with custom tattoo studio theming
+
+PROJECT STRUCTURE:
+/app
+  /(auth)/login
+  /(auth)/register  
+  /studio
+  /gallery
+  /artists
+  /pricing
+  /create-design
+/components
+  /ui (shadcn components)
+  /studio (custom components)
+  /gallery (gallery components)
+/lib
+  /supabase
+  /utils
+/types
+/hooks
+
+COLOR PALETTE:
+- Primary: #1a1a1a (deep black)
+- Secondary: #00d4ff (electric blue)
+- Accent: #39ff14 (neon green)  
+- Gold: #ffd700 (premium gold)
+- Text: #ffffff, #cccccc
+- Background gradients: Linear combinations of primary colors
+
+INITIAL SETUP:
+1. Configure Supabase client
+2. Setup authentication providers (Google, GitHub, Email)
+3. Create base layout with navigation
+4. Implement dark theme as default
+5. Setup Framer Motion for page transitions
+```
+
+#### 2. Enhanced Homepage with Advanced Interactions
+```
+Build the InkAI Studio homepage with premium tattoo studio aesthetics and advanced micro-interactions.
+
+HERO SECTION:
+- Animated gradient background using CSS keyframes and Framer Motion
+- Split-screen layout: Left side shows traditional tattoo tools, right side shows AI interface mockup
+- Typewriter effect for main headline: "Where Art Meets Artificial Intelligence"
+- Floating particle animation using CSS transforms
+- Call-to-action buttons with hover states and click animations
+- Video background option with tattoo process footage (use placeholder)
+
+NAVIGATION:
+- Sticky header with blur backdrop
+- Smooth scroll navigation with active section highlighting
+- Mobile hamburger menu with slide-in animation
+- Logo with SVG animation on hover
+- Search functionality with autocomplete suggestions
+
+FEATURES GRID:
+- Three-column responsive grid with hover effects
+- Each card has: icon, title, description, and "Learn More" link
+- Stagger animation on scroll using Intersection Observer
+- Cards: "AI Design Generation", "Master Artists", "Safe Environment"
+- Interactive icons with CSS animations
+
+STATS COUNTER:
+- Animated counters that trigger on scroll
+- Real-time updating numbers with easing animations
+- Stats: "5000+ Designs", "500+ Clients", "10+ Artists", "99% Satisfaction"
+- Background particles that respond to mouse movement
+
+TESTIMONIALS CAROUSEL:
+- Auto-playing carousel with pause on hover
+- Smooth transitions between testimonials
+- Client photos with before/after design comparisons
+- Star ratings with animated fill effect
+- Swipe gesture support for mobile
+
+TECHNICAL IMPLEMENTATION:
+- Use Framer Motion for all animations
+- Implement Intersection Observer for scroll triggers
+- Add loading states and skeleton screens
+- Optimize images with Next.js Image component
+- Add meta tags for SEO optimization
+```
+
+#### 3. Advanced Gallery with AI-Powered Features
+```
+Create a sophisticated gallery page with advanced filtering, search, and AI-powered categorization.
+
+LAYOUT & STRUCTURE:
+- Masonry grid layout using CSS Grid and Flexbox
+- Infinite scroll with React Query for data fetching
+- Lazy loading for images with blur-to-clear effect
+- Responsive breakpoints: mobile (1 column), tablet (2-3), desktop (4-5)
+
+FILTERING SYSTEM:
+- Multi-level filter sidebar with collapsible sections
+- Filters: Style, Body Part, Color Scheme, Artist, AI vs Traditional
+- Real-time search with debounced input
+- Filter chips with remove functionality
+- Advanced search with boolean operators
+- Save filter combinations as presets
+
+IMAGE MODAL & INTERACTIONS:
+- Full-screen modal with navigation arrows
+- Zoom functionality with pinch-to-zoom on mobile
+- Image metadata display: artist, style, process time, AI involvement
+- Before/after slider for AI-enhanced designs
+- Share functionality with social media integration
+- Favorite system with heart animation and local storage
+
+AI-POWERED FEATURES:
+- Visual similarity search: "Find similar designs"
+- Style transfer preview: "See this in different styles"
+- Color palette extraction and matching
+- Automatic tagging based on image analysis
+- Recommendation engine: "You might also like"
+
+TECHNICAL IMPLEMENTATION:
+```typescript
+// Example component structure
+interface GalleryItem {
+  id: string;
+  imageUrl: string;
+  thumbnailUrl: string;
+  title: string;
+  artist: string;
+  style: string;
+  bodyPart: string;
+  colors: string[];
+  isAiEnhanced: boolean;
+  processSteps: ProcessStep[];
+  metadata: ImageMetadata;
+}
+
+// Filter state management
+interface FilterState {
+  styles: string[];
+  bodyParts: string[];
+  colors: string[];
+  artists: string[];
+  searchQuery: string;
+  isAiOnly: boolean;
+  sortBy: 'recent' | 'popular' | 'rating';
+}
+```
+
+DATA FETCHING:
+- Use React Query for server state management
+- Implement optimistic updates for favorites
+- Cache strategies for better performance
+- Error boundaries for graceful error handling
+```
+
+#### 4. Interactive Design Creation Tool
+```
+Build a comprehensive AI-powered design creation interface with real-time collaboration features.
+
+CANVAS INTERFACE:
+- HTML5 Canvas with Fabric.js for drawing capabilities
+- Layer system with drag-and-drop reordering
+- Undo/redo functionality with command pattern
+- Zoom and pan controls with gesture support
+- Grid and ruler guides for precision
+- Selection tools: lasso, rectangle, magic wand
+
+AI INTEGRATION PANEL:
+- Prompt input with syntax highlighting
+- Style selector with live preview thumbnails
+- Parameter sliders: creativity, detail, color intensity
+- Reference image upload with drag-and-drop
+- Style transfer between uploaded images
+- AI generation progress indicator with estimated time
+- Batch generation with multiple variations
+
+COLLABORATION FEATURES:
+- Real-time cursors showing other users
+- Live updates using WebSocket connection
+- Comment system with threaded discussions
+- Version history with branching
+- Permission system: view, comment, edit
+- Screen sharing for design reviews
+
+TOOL PALETTE:
+- Drawing tools: brush, pen, eraser, shapes
+- Color picker with palette suggestions
+- Text tool with custom fonts
+- Image insertion and manipulation
+- Filters and effects panel
+- Custom brush creation
+
+TECHNICAL IMPLEMENTATION:
+```typescript
+// Canvas state management
+interface CanvasState {
+  layers: Layer[];
+  activeLayer: string;
+  history: HistoryState[];
+  historyIndex: number;
+  collaborators: Collaborator[];
+  aiGenerationStatus: 'idle' | 'generating' | 'complete' | 'error';
+}
+
+// WebSocket for real-time collaboration
+const useCollaboration = (designId: string) => {
+  const [socket, setSocket] = useState<Socket | null>(null);
+  
+  useEffect(() => {
+    const newSocket = io('/design-collaboration');
+    newSocket.emit('join-design', designId);
+    setSocket(newSocket);
+    
+    return () => newSocket.close();
+  }, [designId]);
+};
+```
+
+EXPORT & SHARING:
+- Multiple export formats: PNG, SVG, PDF
+- High-resolution exports for printing
+- Shareable links with privacy controls
+- Embed codes for external sites
+- Print-ready templates with sizing guides
+```
+
+### Phase 2: Advanced Features & Integrations
+
+#### 5. Artist Profile & Portfolio System
+```
+Create comprehensive artist profiles with portfolio management and booking integration.
+
+ARTIST PROFILE LAYOUT:
+- Hero section with artist photo and specialization tags
+- Bio section with rich text editing capability
+- Portfolio grid with filtering by style and collaboration type
+- Skills visualization with progress bars and certifications
+- Client reviews with photo testimonials
+- Availability calendar with booking integration
+- Social media links and contact information
+
+PORTFOLIO MANAGEMENT:
+- Drag-and-drop portfolio organization
+- Before/after comparison sliders
+- Process documentation with step-by-step photos
+- AI collaboration showcase with human-AI workflow
+- Client permission system for portfolio inclusion
+- Advanced metadata for each piece
+
+BOOKING INTEGRATION:
+```typescript
+// Booking system types
+interface BookingSlot {
+  id: string;
+  artistId: string;
+  startTime: Date;
+  endTime: Date;
+  isAvailable: boolean;
+  sessionType: 'consultation' | 'design' | 'tattoo';
+  price: number;
+}
+
+interface BookingRequest {
+  clientId: string;
+  artistId: string;
+  preferredDates: Date[];
+  sessionType: string;
+  designId?: string;
+  specialRequests: string;
+}
+```
+
+REAL-TIME CHAT:
+- Embedded chat widget for direct communication
+- File sharing for reference images
+- Appointment scheduling within chat
+- Message threading for project discussions
+- Notification system for new messages
+
+TECHNICAL FEATURES:
+- Calendar integration with Google Calendar
+- Automatic availability sync
+- Booking confirmation emails
+- Payment integration for deposits
+- Cancellation and rescheduling policies
+```
+
+#### 6. Advanced Pricing & Payment System
+```
+Build a sophisticated pricing calculator with subscription tiers and payment processing.
+
+DYNAMIC PRICING CALCULATOR:
+- Interactive sliders for size, complexity, colors, placement
+- Real-time price updates with smooth animations
+- Breakdown visualization with cost components
+- Comparison tool for different options
+- Discount codes and promotional pricing
+- Seasonal pricing adjustments
+
+SUBSCRIPTION TIERS:
+```typescript
+interface SubscriptionTier {
+  id: string;
+  name: string;
+  price: number;
+  interval: 'month' | 'year';
+  features: {
+    aiGenerations: number;
+    designRevisions: number;
+    premiumStyles: boolean;
+    prioritySupport: boolean;
+    collaborationTools: boolean;
+    exportFormats: string[];
+  };
+  popular?: boolean;
+}
+```
+
+PAYMENT INTEGRATION:
+- Stripe integration for secure payments
+- Multiple payment methods: cards, PayPal, Apple Pay
+- Subscription management with prorations
+- Invoice generation and email delivery
+- Payment history and receipts
+- Refund processing workflow
+
+FINANCIAL DASHBOARD:
+- Revenue analytics with charts
+- Subscription metrics and churn analysis
+- Payment failure handling and retry logic
+- Tax calculation and reporting
+- Financial reporting exports
+
+TECHNICAL IMPLEMENTATION:
+- Stripe webhook handling for payment events
+- Secure payment form with validation
+- PCI compliance considerations
+- Error handling for payment failures
+- Automated billing and invoicing
+```
+
+### Phase 3: Advanced AI & Analytics
+
+#### 7. AI Model Integration & Management
+```
+Implement advanced AI capabilities with model management and training pipelines.
+
+AI SERVICE ARCHITECTURE:
+- Microservice for AI processing with FastAPI
+- Queue system for batch processing
+- Model versioning and A/B testing
+- Performance monitoring and analytics
+- Fallback mechanisms for model failures
+
+STYLE TRANSFER MODELS:
+```python
+# Example AI service integration
+class StyleTransferService:
+    def __init__(self):
+        self.models = {
+            'neural_style': self.load_neural_style_model(),
+            'cyclegan': self.load_cyclegan_model(),
+            'stable_diffusion': self.load_stable_diffusion_model()
+        }
+    
+    async def generate_design(self, prompt: str, reference_image: bytes, style: str):
+        # AI generation logic
+        pass
+    
+    async def style_transfer(self, source_image: bytes, style_image: bytes):
+        # Style transfer logic
+        pass
+```
+
+PROMPT ENGINEERING:
+- Template system for consistent AI prompts
+- Prompt optimization based on success rates
+- User prompt enhancement and suggestions
+- Negative prompt handling for better results
+- Style-specific prompt templates
+
+MODEL TRAINING PIPELINE:
+- Custom model fine-tuning on tattoo designs
+- Data augmentation for better training
+- Quality assessment and filtering
+- Continuous learning from user feedback
+- Model performance metrics and monitoring
+
+INTEGRATION POINTS:
+- Real-time generation status updates
+- Progress tracking with WebSocket
+- Error handling and retry mechanisms
+- Result caching for similar requests
+- User feedback collection for model improvement
+```
+
+#### 8. Analytics & Business Intelligence
+```
+Create comprehensive analytics dashboard for business insights and user behavior tracking.
+
+USER ANALYTICS:
+- Design creation funnel analysis
+- User journey mapping and optimization
+- A/B testing framework for UI changes
+- Conversion rate optimization
+- User retention and churn analysis
+
+BUSINESS METRICS:
+```typescript
+interface BusinessMetrics {
+  revenue: {
+    monthly: number;
+    yearly: number;
+    growth: number;
+  };
+  users: {
+    active: number;
+    new: number;
+    retained: number;
+  };
+  designs: {
+    created: number;
+    completed: number;
+    aiGenerated: number;
+  };
+  artists: {
+    active: number;
+    revenue: number;
+    bookings: number;
+  };
+}
+```
+
+DASHBOARD COMPONENTS:
+- Real-time metrics with WebSocket updates
+- Interactive charts with drill-down capability
+- Custom date range selection
+- Export functionality for reports
+- Automated alert system for key metrics
+- Comparative analysis tools
+
+AI PERFORMANCE METRICS:
+- Generation success rates by model
+- User satisfaction scores for AI designs
+- Processing time optimization
+- Cost per generation analysis
+- Model accuracy and improvement tracking
+
+TECHNICAL IMPLEMENTATION:
+- Event tracking with custom analytics
+- Data pipeline for metrics processing
+- Real-time dashboard updates
+- Automated reporting system
+- Data visualization with Chart.js or D3.js
+```
+
+## Implementation Guidelines for Lovable.dev
+
+### 1. Database Schema Design
+```sql
+-- Core tables for Supabase
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email VARCHAR UNIQUE NOT NULL,
+  full_name VARCHAR,
+  avatar_url VARCHAR,
+  subscription_tier VARCHAR DEFAULT 'free',
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE artists (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id),
+  bio TEXT,
+  specializations TEXT[],
+  portfolio_images TEXT[],
+  hourly_rate DECIMAL,
+  is_verified BOOLEAN DEFAULT false
+);
+
+CREATE TABLE designs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id),
+  artist_id UUID REFERENCES artists(id),
+  title VARCHAR NOT NULL,
+  description TEXT,
+  image_url VARCHAR,
+  ai_generated BOOLEAN DEFAULT false,
+  style VARCHAR,
+  body_part VARCHAR,
+  status VARCHAR DEFAULT 'draft',
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE bookings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id UUID REFERENCES users(id),
+  artist_id UUID REFERENCES artists(id),
+  design_id UUID REFERENCES designs(id),
+  appointment_time TIMESTAMP,
+  duration INTEGER,
+  status VARCHAR DEFAULT 'pending',
+  total_price DECIMAL
+);
+```
+
+### 2. Component Architecture
+```typescript
+// Shared component types
+interface BaseComponent {
+  className?: string;
+  children?: React.ReactNode;
+}
+
+// Design system components
+export const Button = ({ variant, size, ...props }: ButtonProps) => {
+  // Implementation with tattoo studio theming
+};
+
+export const Card = ({ hover, gradient, ...props }: CardProps) => {
+  // Implementation with studio aesthetics
+};
+
+// Feature-specific components
+export const DesignCanvas = ({ designId, collaborative }: CanvasProps) => {
+  // Canvas implementation
+};
+
+export const AIGenerator = ({ onGenerate, style }: AIGeneratorProps) => {
+  // AI generation interface
+};
+```
+
+### 3. State Management Strategy
+```typescript
+// Zustand stores
+export const useAuthStore = create<AuthState>((set, get) => ({
+  user: null,
+  loading: false,
+  signIn: async (credentials) => {
+    // Authentication logic
+  },
+  signOut: async () => {
+    // Sign out logic
+  }
+}));
+
+export const useDesignStore = create<DesignState>((set, get) => ({
+  currentDesign: null,
+  designs: [],
+  isGenerating: false,
+  generateDesign: async (prompt, style) => {
+    // AI generation logic
+  }
+}));
+```
+
+### 4. API Route Structure
+```typescript
+// app/api/designs/route.ts
+export async function GET(request: Request) {
+  // Fetch designs with filtering
+}
+
+export async function POST(request: Request) {
+  // Create new design
+}
+
+// app/api/ai/generate/route.ts
+export async function POST(request: Request) {
+  // AI generation endpoint
+}
+
+// app/api/bookings/route.ts
+export async function GET(request: Request) {
+  // Fetch bookings
+}
+```
+
+### 5. Deployment & Performance
+```yaml
+# deployment configuration
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_SUPABASE_URL
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY
+      - STRIPE_SECRET_KEY
+  
+  ai-service:
+    build: ./ai-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models
+```
+
+## Success Metrics & KPIs
+
+### User Engagement
+- Design creation completion rate: >75%
+- User session duration: >10 minutes average
+- Return user rate: >60% within 30 days
+- Feature adoption rate: >40% for AI tools
+
+### Business Performance
+- Monthly recurring revenue growth: >20%
+- Customer acquisition cost: <$50
+- Customer lifetime value: >$300
+- Artist booking conversion: >15%
+
+### Technical Performance
+- Page load speed: <2 seconds
+- AI generation time: <30 seconds
+- Uptime: >99.9%
+- Error rate: <0.1%
+
+This enhanced prompt engineering approach provides Lovable.dev with clear, implementable instructions while maintaining the creative vision of the AI-powered tattoo studio platform.
